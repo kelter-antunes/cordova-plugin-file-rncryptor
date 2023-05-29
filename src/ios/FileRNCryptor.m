@@ -78,14 +78,12 @@ NSString *const PREFIX_ERROR = @"ERR: ";
 
 
   if(path==nil || [path length]==0 || password == nil || [password length] == 0)
-  	return [CDVPluginResult
-  						resultWithStatus:CDVCommandStatus_ERROR
-  						messageAsString:[self _asError: @"Empty argument"]];
+  	return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+  							messageAsString:[self _asError: @"Empty argument"]];
 
   if(! fileExists)
-  	return [CDVPluginResult
-  						resultWithStatus:CDVCommandStatus_ERROR
-  						messageAsString:[self _asError: @"File not found"]];
+  	return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+  							messageAsString:[self _asError: @"File not found"]];
 
 
 	NSData *fileData = [NSData dataWithContentsOfFile:path];
@@ -93,41 +91,36 @@ NSString *const PREFIX_ERROR = @"ERR: ";
   NSError *error;
   if ([action isEqualToString:@"encrypt"])
   {
-    data = [RNEncryptor
-    					encryptData:fileData
-              withSettings:kRNCryptorAES256Settings
-              password:password
-              error:&error];
+    data = [RNEncryptor encryptData:fileData
+              			withSettings:kRNCryptorAES256Settings
+              			password:password
+              			error:&error];
 
 	}
 	else if ([action isEqualToString:@"decrypt"])
 	{
-    data = [RNDecryptor
-    					decryptData:fileData
-              withPassword:password
-              error:&error];
+    data = [RNDecryptor decryptData:fileData
+              			password:password
+              			error:&error];
 	}
 	else
 	{
-		return [CDVPluginResult
-  						resultWithStatus:CDVCommandStatus_ERROR
-  						messageAsString:[self _asError: @"Action not 'encrypt' or 'decrypt'"]];
+		return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+  								messageAsString:[self _asError: @"Action not 'encrypt' or 'decrypt'"]];
 	}
 
 
   if(error != nil)
   {
-		return [CDVPluginResult
-  						resultWithStatus:CDVCommandStatus_ERROR
-  						messageAsString:[self _asError: [error localizedDescription]]];
+		return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+  								messageAsString:[self _asError: [error localizedDescription]]];
   }
 
 
 
 	[data writeToFile:path atomically:YES];
-	return [CDVPluginResult
-						resultWithStatus:CDVCommandStatus_OK
-						messageAsString:path];
+	return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+							messageAsString:path];
 }
 
 /**
@@ -146,9 +139,8 @@ NSString *const PREFIX_ERROR = @"ERR: ";
   NSString *password = [command.arguments objectAtIndex:1];
 
   if(text == nil || [text length] == 0)
-  	return [CDVPluginResult
-  						resultWithStatus:CDVCommandStatus_ERROR
-  						messageAsString:[self _asError: @"Empty argument"]];
+  	return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+  							messageAsString:[self _asError: @"Empty argument"]];
 
 
   NSError *error;
@@ -157,11 +149,10 @@ NSString *const PREFIX_ERROR = @"ERR: ";
   {
     NSData *textData = [text dataUsingEncoding:NSUTF8StringEncoding];
 
-    data = [RNEncryptor
-    					encryptData:textData
-              withSettings:kRNCryptorAES256Settings
-              password:password
-              error:&error];
+    data = [RNEncryptor encryptData:textData
+              			withSettings:kRNCryptorAES256Settings
+              			password:password
+              			error:&error];
 
     result = [data base64EncodedStringWithOptions:0];
 	}
@@ -169,32 +160,29 @@ NSString *const PREFIX_ERROR = @"ERR: ";
 	{
     NSData *cryptData = [[NSData alloc] initWithBase64EncodedString:text options:0]; 
 
-    data = [RNDecryptor
-    					decryptData:cryptData
-              withPassword:password
-              error:&error];
+    data = [RNDecryptor decryptData:cryptData
+	                    withSettings:kRNCryptorAES256Settings
+              			password:password
+              			error:&error];  
 
     result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 	}
 	else
 	{
-		return [CDVPluginResult
-  						resultWithStatus:CDVCommandStatus_ERROR
-  						messageAsString:[self _asError: @"Action not 'encryptText' or 'decryptText'"]];
+		return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+  								messageAsString:[self _asError: @"Action not 'encryptText' or 'decryptText'"]];
 	}
 
 
   if(error != nil)
   {
-		return [CDVPluginResult
-  						resultWithStatus:CDVCommandStatus_ERROR
-  						messageAsString:[self _asError: [error localizedDescription]]];
+		return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+  								messageAsString:[self _asError: [error localizedDescription]]];
   }
 
 
-	return [CDVPluginResult
-						resultWithStatus:CDVCommandStatus_OK
-						messageAsString:result];
+	return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+							messageAsString:result];
 }
 
 @end
