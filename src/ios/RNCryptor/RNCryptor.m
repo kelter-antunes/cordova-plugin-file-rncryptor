@@ -24,17 +24,45 @@
 //  DEALINGS IN THE SOFTWARE.
 //
 //
+
 #import "RNCryptor.h"
 #import "RNCryptor+Private.h"
-#import <Security/SecRandom.h>
 
+#import <CommonCrypto/CommonCryptor.h>
+#import <CommonCrypto/CommonKeyDerivation.h>
+#import <Security/SecRandom.h>
+#import <fcntl.h>
+
+const RNCryptorSettings kRNCryptorAES256Settings = {
+    .algorithm = kCCAlgorithmAES128,
+    .blockSize = kCCBlockSizeAES128,
+    .IVSize = kCCBlockSizeAES128,
+    .options = kCCOptionPKCS7Padding,
+    .HMACAlgorithm = kCCHmacAlgSHA256,
+    .HMACLength = CC_SHA256_DIGEST_LENGTH,
+
+    .keySettings = {
+        .keySize = kCCKeySizeAES256,
+        .saltSize = 8,
+        .PBKDFAlgorithm = kCCPBKDF2,
+        .PRF = kCCPRFHmacAlgSHA1,
+        .rounds = 10000
+    },
+
+    .HMACKeySettings = {
+        .keySize = kCCKeySizeAES256,
+        .saltSize = 8,
+        .PBKDFAlgorithm = kCCPBKDF2,
+        .PRF = kCCPRFHmacAlgSHA1,
+        .rounds = 10000
+    }
+};
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
 extern int SecRandomCopyBytes(SecRandomRef rnd, size_t count, void *bytes) __attribute__((weak_import));
 #else
 extern int SecRandomCopyBytes(SecRandomRef rnd, size_t count, uint8_t *bytes) __attribute__((weak_import));
 #endif
-
 extern int
 CCKeyDerivationPBKDF( CCPBKDFAlgorithm algorithm, const char *password, size_t passwordLen,
                      const uint8_t *salt, size_t saltLen,
@@ -262,7 +290,7 @@ RN_CCKeyDerivationPBKDF( CCPBKDFAlgorithm algorithm, const char *password, size_
 	bzero(newbuffer, CC_MAX_PRF_WORKSPACE);
 	bzero(collector, CC_MAX_PRF_WORKSPACE);
 	bzero(saltCopy, CC_MAX_PRF_WORKSPACE+4);
-
+	
 	return 0;
 }
 
